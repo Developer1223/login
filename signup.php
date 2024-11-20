@@ -15,6 +15,21 @@ if (isset($_POST['signup'])) {
         exit();
     }
 
+    // Check if the username or email already exists
+    $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+    $stmt->bind_param("ss", $username, $email);
+    $stmt->execute();
+    $stmt->store_result();
+
+    if ($stmt->num_rows > 0) {
+        echo "An account with this username or email already exists!";
+        $stmt->close();
+        $conn->close();
+        exit();
+    }
+
+    $stmt->close();
+
     // Hash the password using bcrypt (default hashing algorithm for password_hash)
     $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
@@ -34,4 +49,3 @@ if (isset($_POST['signup'])) {
     $conn->close();
 }
 ?>
-
